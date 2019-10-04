@@ -1,0 +1,24 @@
+mqsistop KCB_DEV_IIBNODE1 && mqsistart KCB_DEV_IIBNODE1
+mqsisetdbparms KCB_DEV_IIBNODE1 -n ESBCORE -u esbfwdev -p esbfwdev
+mqsichangeproperties KCB_DEV_IIBNODE1 -e BO -o HTTPConnector -n explicitlySetPortNumber -v 7800
+mqsireportproperties KCB_DEV_IIBNODE1 -e BO -o HTTPConnector -n port
+
+Configuring an integration server to use SSL
+
+https://www.ibm.com/support/knowledgecenter/en/SSMKHH_10.0.0/com.ibm.etools.mft.doc/ac56640_.htm
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+mqsireportproperties {BROKER name} -o ComIbmJVMManager -a -e {EG name}
+
+mqsichangeproperties {BROKER name} -e {EG name} -o ComIbmJVMManager -n  keystoreFile -v C:\WORK\SSL\keystore.jks   ----KEYSTORE Path
+
+mqsichangeproperties {BROKER name} -e {EG name} -o ComIbmJVMManager  -n  truststoreFile  -v C:\WORK\SSL\truststore.jks   --TRUSTSTORE Path
+
+mqsichangeproperties {BROKER name} -e {EG name} -o ComIbmJVMManager -n keystorePass -v {EG name}::keystorePass
+
+mqsisetdbparms {BROKER name} -n {EG name}::keystorePass -u na -p password
+
+mqsichangeproperties {BROKER name} -e {EG name} -o ComIbmJVMManager -n truststorePass -v {EG name}::truststorePass
+
+mqsisetdbparms {BROKER name} -n {EG name}::truststorePass -u na -p password

@@ -1,0 +1,863 @@
+To List out all the Brokers created in the current installation         : $ mqsilist
+To create the Broker 													: $ mqsicreatebroker {BROKERNAME} -q {QMGRNAME} -i {USERNAME} -p {Password}
+To create Execution Group                                               : $ mqsicreateexecutiongroup  {BROKERNAME} -e {EGName}
+To start Execution Group 												: $ mqsistartmsgflow {BROKERNAME} -e {EGName}
+To stop Execution Group                                                 : $ mqsistopmsgflow {BROKERNAME} -e {EGName}
+To stop Message Flow in an Execution Group								: $ mqsistopmsgflow {BROKERNAME} -E {EGName} –m {messageFlowName} –w 30 -f restartExecutionGroup
+To delete Execution Group on remote broker                              : $ mqsideleteexecutiongroup -n {MB8BROKER.broker.file}-e EGroup_2
+To delete Execution Group on local  broker                              : $ mqsideleteexecutiongroup {BROKERNAME} -e {EGName}
+To specify Debug Port for EG                                            : $ mqsichangeproperties {BROKERNAME} -e default -o ComIbmJVMManager -n jvmDebugPort -v 8117
+To List out all the deployed objects under Execution Group              : $ mqsilist {BROKERNAME} -e default -k myApplication
+To List out all the deployed objects that are configured Library        : $ mqsilist {BROKERNAME} -e default -k myApplication -y {myEGLibraryName}
+To return detailed information about Application  					    : $ mqsilist {BROKERNAME} -e default -k myApplication -d2
+To lists all deployed objects that are configured in  myApplication     : $ mqsilist {BROKERNAME} -e default -k myApplication -r
+To List out a summary of the EG that are defined on a  broker		    : $ mqsilist {BROKERNAME}
+To display detailed info about all resources for brokers on Local System: $ mqsilist -a -r -d2
+
+MONITORING COMMANDS:
+To activate the Monitoring												: $ mqsichangeflowmonitoring {BROKERNAME} -e default -k {ApplicationName} -f {FlowName} -c active
+To report the Monitoring  												: $ mqsireportflowmonitoring {BROKERNAME} -e default -k {ApplicationName} -f {FlowName} -a
+
+SECURITY IDENTITY COMMANDS:
+To start the Broker     											: $ mqsistart {BROKERNAME};
+To stop the Broker      											: $ mqsistop {BROKERNAME};
+To register DSN with IIB											: $ mqsisetdbparms {BROKERNAME} -n {DSName} -u {SchemaName} -p {Password};
+To know whether Broker is associated with DSN or Not                : $ mqsicvp {BROKERNAME} -n {DSName}
+To give security for FTP											: $ mqsisetdbparms {BROKERNAME} -n ftp::{SeuID} -u {SchemaName} -p {Password};
+To give security for SMTP(Email Receiving)							: $ mqsisetdbparms {BROKERNAME} -n smtp::{SeuID} -u {emailid} -p {Password};
+To give security for Email Sending									: $ mqsisetdbparms {BROKERNAME} -n email::{SeuID} -u {emailid} -p {Password};
+To give security for JDBC Configurable Service						: $ mqsisetdbparms {BROKERNAME} -n jdbc::{SeuID} -u {SchemaName} -p {Password};
+
+MQSICHANGE PROPERTY COMMANDS:
+To report the HTTP Listener Property at Broker Level                : $ mqsireportproperties {BROKERNAME} -b httplistener -o HTTPConnector -a
+To report the HTTP Listener Property at EG Level					: $ mqsireportproperties {BROKERNAME} -e default -o HTTPConnector -a
+To Change the HTTP Listener Port Number(Broker Level)				: $ mqsichangeproperties {BROKERNAME} -b httplistener -o HTTPConnector -n port -v 7080
+To change the HTTP Listener Port Number at EG Level                 : $ mqsichangeproperties {BROKERNAME} -e default -o HTTPConnector -n port -v 7800
+To change debug port of an integration server from command			: $ mqsichangeproperties {BROKERNAME} -e {egname} -o ComIbmJVMManager -n jvmDebugPort -v 20000
+
+
+To Trace the HTTPListener                                           : $ mqsireportbroker {BROKERNAME}
+To report all the properties in detail including flow names and URLs: $ mqsireportproperties {BROKERNAME} -e {executiongroup} -o HTTPConnector -r
+To report all the properties in detail HTTPS Details				: $ mqsireportproperties {BROKERNAME} -e {executiongroup} -o HTTPSConnector -r
+To report HTTP Connector Port										: $ mqsireportproperties KCB_DEV_IIBNODE1 -e FINTECH_BO -o HTTPConnector -n port
+To report web admin port so as to connect remotely					: $	mqsireportproperties KCB_DEV_IIBNODE2 -b webadmin -o HTTPConnector -a
+To report web admin port so as to connect remotely (If on HTTPs)	: $	mqsireportproperties KCB_DEV_IIBNODE2 -b webadmin -o HTTPSConnector -a
+
+
+NORMAL COMMANDS:
+To start the Application             								: $ mqsistartmsgflow {BROKERNAME} -e {EGName} -k {ApplicationName}
+To stop the Application              								: $ mqsistoptmsgflow {BROKERNAME} -e {EGName} -k {ApplicationName}
+To delete the Application            								: $ mqsideploy {BROKERNAME} -e {EGName} -d {ApplicationName}
+To know the Deployment Status        								: $ mqsilist {BROKERNAME} -e {EGName} -d 2
+To deploy the BAR                    								: $ mqsideploy {BROKERNAME} -e {EGName} -a {BARFileName}
+To delete the BAR                    								: $ mqsideploy {BROKERNAME} -e {EGName} -d {BARFileName}
+To read the BAR                      								: $ mqsireadbar -b {BARFileName} -r
+																	: $ mqsireadbar -b C:\IIBWorkspace\DTPTibcoConn\BARfiles\DA_PersistUWSInfo_integrationProd_prod_v1_1.bar -r 
+BAR Override Command                 								: $ mqsiapplybaroverride -b {BARFileName} -k {ApplicationName} -m {MessageFlowName}#{Property to change}
+																	: $ mqsiapplybaroverride -b C:\IIBWorkspace\iib9\BARfiles\emp.bar -k Test12App -m Test12Flow#TABLE=DEPT
+																	: $ mqsiapplybaroverride -b C:\IIBWorkspace\DTPTibcoConn\BARfiles\DA_PersistUWSInfo_integrationProd_prod_v1_1.bar -m DTP_MSG_PICK_FROM_TIBCO_MF#UWSMessageReceiver.sourceQueueName=INPUTQ
+-------------------------------------------------------------------------------
+Note all commands are to be in a single line. For simplicity and understanding sake they are broken down. 
+
+create email configurable service (Email Sending) : 	
+
+	mqsicreateconfigurableservice IB9NODE 
+		-c EmailServer(SMTP) 
+		-o myEmailConfigurableServiceName(emailConfig) 
+		-n serverName,
+		securityIdentity 
+		-v "email.netfirms.com:587",
+		"mySecurityIdentityObjectName"(test)
+-------------------------------------------------------------------------------
+Create an FtpServer configurable service: 		
+
+	mqsicreateconfigurableservice IB9NODE 
+		-c FtpServer 
+		-o Server01 
+		-n serverName,
+		scanDelay,
+		transferMode,
+		connectionType,
+		securityIdentity 
+		-v one.hursley.abc.com:123,
+		20,
+		Binary,
+		ACTIVE,
+		secId
+-------------------------------------------------------------------------------
+create configurable service for oracle database:- follow the steps. Note all in a single line. 
+
+	1.	mqsicreateconfigurableservice BRKR 
+			-c JDBCProviders 
+			-o myConfig 
+			-n connectionUrlFormat,	
+				connectionUrlFormatAttr1,
+				description,
+				jarsURL,
+				portNumber,
+				serverName,
+				type4DatasourceClassName,
+				type4DriverClassName 
+			-v "jdbc:oracle:thin:[user]/[password]@[serverName]:[portNumber]:[connectionUrlFormatAttr1],
+				XE,
+				Simplified Database Routing Sample Database,
+				C:\Users\bandaru\Desktop\ojdbc6,
+				1521,
+				localhost,
+				oracle.jdbc.xa.client.OracleXADataSource,
+				oracle.jdbc.OracleDriver"
+
+	2.	mqsisetdbparms BRKR 
+		-n jdbc::secIdentity 
+		-u system 
+		-p manager
+
+	3.	mqsichangeproperties BRKR 
+		-c JDBCProviders 
+		-o myConfig 
+		-n securityIdentity 
+		-v secIdentity
+
+	4.	stop the broker
+
+	5.	start the broker
+-------------------------------------------------------------------------------
+
+To see the report of created configurable service:   
+
+	mqsireportproperties BRKR -o myConfig -c JDBCProviders -r
+-------------------------------------------------------------------------------
+To delete configurable service :                     
+
+	mqsideleteconfigurableservice BRKR -c JDBCProviders -o myConfig
+-------------------------------------------------------------------------------
+create configurable service for DB2 database:- follow the steps
+
+	1.	mqsicreateconfigurableservice BRKR 
+		-c JDBCProviders 
+		-o myDB2 
+		-n connectionUrlFormat,
+		databaseName,
+		description,
+		jarsURL,
+		portNumber,
+		serverName,
+		type4DatasourceClassName,
+		type4DriverClassName 
+		
+		-v "jdbc:db2://[serverName]:[portNumber]/[databaseName]:user=[user];password=[password];,
+		SROUTEDB,
+		Simplified Database Routing Sample Database,
+		C:\Program Files\IBM\SQLLIB\java,
+		50000,
+		localhost,
+		com.ibm.db2.jcc.DB2DataSource,
+		com.ibm.db2.jcc.DB2Driver" 
+
+	2.	mqsisetdbparms BRKR 
+		-n jdbc::testIdentity 
+		-u db2admin 
+		-p sarasu10
+
+	3.	mqsichangeproperties BRKR 
+		-c JDBCProviders 
+		-o myDB2 
+		-n securityIdentity 
+		-v testIdentity
+
+	4.	stop the broker
+
+	5.	start the broker
+
+-------------------------------------------------------------------------------
+
+Check if the broker-wide listener is active for deployed HTTP and SOAP nodes in one or more integration servers:  		
+
+	mqsireportproperties IB9NODE 
+	-b httplistener 
+	-o HTTPListener 
+	-n startListener
+-------------------------------------------------------------------------------
+
+Display the properties for the cache manager:     
+                                                                		
+	mqsireportproperties IB9NODE 
+	-b cachemanager 
+	-o CacheManager 
+	-r
+mqsireportproperties KCB_DR_IIBNODE2 -b cachemanager -o CacheManager -r
+-------------------------------------------------------------------------------
+Enable Global Cache in IIB10 and above. 	
+ 
+
+	mqsichangebroker IN1 -b default
+-------------------------------------------------------------------------------
+
+Display all the current HTTPListener settings associated with HTTP and SOAP nodes (defined in the httplistener component):  	
+
+	mqsireportproperties IB9NODE 
+	-b httplistener 
+	-o HTTPListener 
+	-a
+
+-------------------------------------------------------------------------------
+
+Display the HTTPSConnector port setting for the HTTP nodes (defined in the httplistener component):  				
+
+	mqsireportproperties IB9NODE 
+	-b httplistener 
+	-o HTTPSConnector 
+	-n port
+-------------------------------------------------------------------------------
+
+Display all Aggregation configurable services:											
+
+	mqsireportproperties IB9NODE 
+	-c Aggregation 
+	-o AllReportableEntityNames 
+	-r
+	
+-------------------------------------------------------------------------------
+
+Display all configurable services for Connect:	Direct® server (that you have defined to this broker with the mqsicreateconfigurableservice command) 
+
+	mqsireportproperties IB9NODE 
+	-c CDServer 
+	-o AllReportableEntityNames 
+	-r
+-------------------------------------------------------------------------------
+
+Display all properties of the FtpServer configurable service called TEST1:							
+
+	mqsireportproperties IB9NODE 
+	-c FtpServer 
+	-o TEST1 
+	-r
+-------------------------------------------------------------------------------
+
+Display the protocol property setting of the FtpServer configurable service called TEST1:					
+
+	mqsireportproperties IB9NODE 
+	-c FtpServer 
+	-o TEST1 
+	-n protocol
+-------------------------------------------------------------------------------
+
+Report the properties of the Oracle JDBCProvider configurable service, meaning what all config parms are required for this particular vendor					
+
+	mqsireportproperties IB9NODE 
+	-c JDBCProviders 
+	-o Oracle 
+	-r
+-------------------------------------------------------------------------------
+
+Display the properties for all the broker's JMS provider resources 
+(default JMS provider resources and those configurable services that you have defined by using the mqsicreateconfigurableservice command): 
+
+	mqsireportproperties IB9NODE 
+	-c JMSProviders 
+	-o AllReportableEntityNames 
+	-r
+	
+-------------------------------------------------------------------------------
+
+Display the properties for all the JMS provider resources of WebSphere MQ:      
+
+	mqsireportproperties IB9NODE 
+	-c JMSProviders 
+	-o WebSphere_MQ 
+	-r
+
+-------------------------------------------------------------------------------
+
+Display the properties for all the JMS provider resources of WebSphere MQ: 
+
+	mqsireportproperties IB9NODE 
+	-c JMSProviders 
+	-o WebSphere_MQ 
+	-r
+-------------------------------------------------------------------------------
+
+Display the properties for all the JMS provider resources 
+(default JMS provider resources and those configurable services that you have defined to this broker with the mqsicreateconfigurableservice command): 
+
+	mqsireportproperties IB9NODE 
+	-c JMSProviders 
+	-o BEA_WebLogic 
+	–r
+-------------------------------------------------------------------------------
+
+Export policy set Policy_2 in broker IB9NODE to file policyset.xml:	
+
+	mqsireportproperties IB9NODE 
+	-c PolicySets 
+	-o Policy_2 
+	-n ws-security 
+	-p policyset.xml
+
+-------------------------------------------------------------------------------
+		
+Export a policy set bindings from a broker to a file: 	
+
+	mqsireportproperties IB9NODE 
+	-c PolicySetBindings 
+	-o Bindings_2 
+	-n ws-security 
+	-p bindings.xml
+-------------------------------------------------------------------------------
+
+Display the properties for all the security profiles:   
+
+	mqsireportproperties IB9NODE 
+	-c SecurityProfiles 
+	-o AllReportableEntityNames 
+	-r
+-------------------------------------------------------------------------------
+
+Display the properties for the security profile called MyFirstSecurityProfile:	
+
+	mqsireportproperties IB9NODE 
+	-c SecurityProfiles 
+	-o MyFirstSecurityProfile 
+	-r
+-------------------------------------------------------------------------------
+mqsichangebroker command 
+
+Define the path to user-defined exits: 							
+
+	mqsichangebroker MB8BROKER 
+	-x /opt/3rdparty/wmbexit
+-------------------------------------------------------------------------------
+
+Enable the new function that is supplied in WebSphere Message Broker Version 8.0.0.2:	
+
+	mqsichangebroker MB8BROKER 
+	-f 8.0.0.2
+
+Set the broker's security status to active:						
+
+	mqsichangebroker MB8BROKER 
+	-s active
+-------------------------------------------------------------------------------
+
+Set the broker's WebSphere MQ status to defined:					
+
+	mqsichangebroker MB8BROKER 
+	-d defined
+-------------------------------------------------------------------------------
+Set the WebSphere MQ service status to undefined:					
+	mqsichangebroker MB8BROKER 
+	-d undefinedRelated tasks:
+
+
+mqsichangeflowmonitoring command-------------------------
+
+Assign monitoringProfile1 to messageFlow1 in execution group default:	mqsichangeflowmonitoring WBRK_BROKER -e default -f messageFlow1 -m monitoringProfile1
+Activate monitoring for all message flows in all execution groups:	mqsichangeflowmonitoring WBRK_BROKER -c active -g -j
+Activate monitoring for all message flows in application application1 in execution group default:	mqsichangeflowmonitoring MB8BROKER -c active -e default -k application1 -j 
+Activate monitoring for message flow myflow1 in library library1, referenced by application application1, in execution group default: mqsichangeflowmonitoring MB8BROKER -c active -e default -y library1 -k application1 -f myflow1
+Enable individual event sources:	mqsichangeflowmonitoring WBRK_BROKER -e default -f myMessageFlow -s "SOAP Input1.terminal.out,MQOutput1.terminal.in" -i enable
+	
+mqsichangeflowstats command -----------------------------
+
+
+Turn on snapshot statistics for the message flow "myFlow1" in all execution groups of BrokerA:  mqsichangeflowstats BrokerA -s -g -j -b none -c active  
+Turn off the collection of archive statistics for message flow "MyFlow1" in execution group "EGRP2" for BrokerA:  mqsichangeflowstats BrokerA -a -e EGRP2 -f MyFlow1 -c inactive -t basic
+Turn off snapshot data for all message flows in all execution groups for Broker A:   mqsichangeflowstats BrokerA -s -g -j -c inactive  
+
+
+mqsichangeflowuserexits command --------------------------
+
+
+Setting active exits at flow level:	mqsichangeflowuserexits MB8BROKER -e default -f myFlow -a exit2
+Setting inactive exits at flow level:	mqsichangeflowuserexits MB8BROKER -e default -f myFlow -i exit1
+Setting active exits at execution group level:	mqsichangeflowuserexits MB8BROKER -e default -a exit3,exit1
+Setting inactive exits at execution group level:	mqsichangeflowuserexits MB8BROKER -e default -1 exit2
+Changing exit1 to inactive and leaving exit2 active at flow level (A command had previously been issued with "-a exit1:exit2" to set them both active):	mqsichangeflowuserexits MB8BROKER -e default -f myFlow -i exit1 -a exit2
+Clearing the active user exit list at flow level:	mqsichangeflowuserexits MB8BROKER -e default -f myFlow -a ""
+
+
+mqsichange properties command:
+
+
+Changes to broker components-----------------
+
+
+Disable the broker-wide HTTP listener:	mqsichangeproperties IB9NODE -b httplistener -o HTTPListener -n startListener -v false
+Enable the broker-wide HTTP listener:	mqsichangeproperties IB9NODE -b httplistener -o HTTPListener -n startListener -v true
+Enable the HTTPSConnector for the HTTP nodes deployed to the specified broker that use the broker-wide listener: mqsichangeproperties IB9NODE -b httplistener -o HTTPListener -n enableSSLConnector -v true
+
+Change the default SSL protocol from SSLv3 to TLS for the HTTP nodes that are deployed to the specified broker:	mqsichangeproperties IB9NODE  -b httplistener -o HTTPSConnector -n sslProtocol -v TLS 
+Define CRL processing for HTTP-based input nodes that are deployed to the specified broker using a CRL file located at file_path:  mqsichangeproperties IB9NODE -b httplistener -o HTTPSConnector -n crlFile -v file_path
+Change the securitycache timeout to 200 seconds:	mqsichangeproperties IB9NODE -b securitycache -o SecurityCache -n cacheTimeout -v 200 
+Disable the web user interface:	mqsichangeproperties IB9NODE -b webadmin -o server -n enabled -v false 
+Change the port number for the web user interface:	mqsichangeproperties IB9NODE -b webadmin -o HTTPSConnector -n port -v new_port_number (You can change this property only when the broker is running, and the change takes effect when the broker is restarted.)
+Change the JVM heap size for the broker:	mqsichangeproperties IB9NODE -o ComIbmJVMManager -n jvmMaxHeapSize -v size_in_bytes
+
+
+Changes to properties that are associated with integration servers--------------------------------
+
+
+
+Configure the integration server so that all deployed HTTP nodes use the embedded listener:				mqsichangeproperties IB9NODE -e exgroup1 -o ExecutionGroup  -n httpNodesUseEmbeddedListener -v true
+Configure the integration server properties so that deployed HTTP nodes do not use the embedded listener:		mqsichangeproperties IB9NODE -e exgroup1 -o ExecutionGroup  -n httpNodesUseEmbeddedListener -v false
+Configure the integration server so that deployed SOAP nodes use the broker listener rather than the embedded listener:	mqsichangeproperties IB9NODE -e exgroup1 -o ExecutionGroup -n soapNodesUseEmbeddedListener -v false
+Configure the integration server so that deployed SOAP nodes use the embedded listener:					mqsichangeproperties IB9NODE -e exgroup1 -o ExecutionGroup  -n soapNodesUseEmbeddedListener -v true
+Set the port number when changing properties for integration servers:							mqsichangeproperties IB9NODE -e exgroup1 -o HTTPSConnector -n explicitlySetPortNumber -v 7777 
+Set the list of ciphers allowed by the HTTPS listener of the integration server:					mqsichangeproperties IB9NODE -e default -o HTTPSConnector -n ciphers -v \"SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA\"
+On distributed systems, if the property value contains a comma, enclose the value with escaped double quotation marks (\" and \"); for example: -v \"SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA\"
+On z/OS, if the property value contains a comma, enclose the value with double quotation marks (" and "); for example: 				-v "SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA"
+Add a certificate revocation list (CRL) file from location file_path for the HTTPS listener of the integration server:  mqsichangeproperties IB9NODE -e exgroup1 -n crlFile -v file_path
+Configure the JVM to automatically download any CRL files (from CRL distribution points that are specified in the CA's digital signature): mqsichangeproperties IB9NODE -e exgroup1 -o ComIbmJVMManager -n enableCRLDP -v true
+Set the JVM port number to activate message flow debugging:								mqsichangeproperties IB9NODE -e exgroup1 -o ComIbmJVMManager -n jvmDebugPort -v 8018 
+Change the JVM heap size for the integration server:									mqsichangeproperties IB9NODE -e exgroup1 -o ComIbmJVMManager -n jvmMaxHeapSize -v size_in_bytes
+Set the type of server keystore:											mqsichangeproperties IB9NODE -e AddressSampleProvider -o ComIbmJVMManager -n keystoreType -v JKS
+Set the coordination queue manager to QM2 for integration server myExecutionGroup in broker IB9NODE:			mqsichangeproperties IB9NODE -e myExecutionGroup -o FTEAgent -n coordinationQMgr -v QM2
+
+
+Set the way XMLNSC serialization renders characters that do not exist in the target code page:				mqsichangeproperties IB9NODE -e exgroup1 -o ComIbmGenericXmlParserFactory -n invalidCharacterEscapeType -v character_type
+Configure the expiry compensation to prevent messages from immediately expiring when put:				mqsichangeproperties IB9NODE -e default -o ComIbmMQConnectionManager -n expiryCompensation -v option
+
+
+Changes to the BrokerRegistry object--------------
+
+Set the HTTPConnector Port Range in the broker registry:	mqsichangeproperties IB9NODE -o BrokerRegistry -n httpConnectorPortRange -v 7777-8888 
+Configure the path to the CRL files that the JVM uses to check certificates, where file_path is a list of paths to CRL files separated by the path separator character for the host operating system:	mqsichangeproperties IB9NODE -o BrokerRegistry -n crlFileList -v file_path
+
+
+
+Changes to configurable services-----------------
+
+
+Change an Aggregation configurable service:	mqsichangeproperties IB9NODE -c Aggregation -o myAggregationService  -n timeoutSeconds -v 120
+Change a CICSConnection configurable service:	mqsichangeproperties IB9NODE -c CICSConnection -o myCICSConnectionService -n connectionTimeoutSecs -v 120
+Change a Collector configurable service:	mqsichangeproperties IB9NODE -c Collector -o myCollectorService -n collectionExpirySeconds -v 120
+Change an EmailServer configurable service:	mqsichangeproperties IB9NODE -c EmailServer -o myEmailConfigurableServiceName -n securityIdentity -v myNewSecurityIdentityObjectName
+Change the location of the object reference for all nodes that are configured to use the myCORBAService configurable service: mqsichangeproperties IB9NODE -c CORBA -o myCORBAService -n namingService,objectReferenceName -v localhost:2809,Europe.region/Market.object
+
+Change the myCDServer configurable service to use a specific staging directory -/tmp/cdtransfer: mqsichangeproperties IB9NODE -c CDServer -o myCDServer -n brokerPathToStagingDir -v /tmp/cdtransfer
+Make the JAR files and shared libraries available to the WebSphere® Adapter for SAP:	mqsichangeproperties IB9NODE -c EISProviders -o SAP -n jarsURL,nativeLibs -v c:\sapjco\jars,c:\sapjco\bin
+For the FtpServer configurable service called TEST1, change the protocol to SFTP and change the server name to winlnx58:	mqsichangeproperties IB9NODE -c FtpServer -o TEST1 -n protocol,serverName,scanDelay,remoteDirectory,securityIdentity,cipher,compression,strictHostKeyChecking -v  SFTP,winlnx58,30,.,chbatey,blowfish-cbc,9,no
+
+Change all the nodes that are configured to use the myIMSConnectService configurable service: mqsichangeproperties IB9NODE -c IMSConnect -o myIMSConnectService -n Hostname -v production.ims.ibm.com
+Update the security identity for the JDBCProvider service for Oracle:	mqsichangeproperties IB9NODE -c JDBCProviders -o Oracle -n securityIdentity -v OracleDSN
+Change the JDBCProvider service myJDBCProvider to use the database schema mySchemaName:	mqsichangeproperties IB9NODE -c JDBCProviders -o myJDBCProvider -n databaseSchemaNames -v mySchemaName
+Change the JDBCProvider service myJDBCProvider to use a table-specific database schema, where myTableNameA is the name of your database table, and mySchemaName01 is the name of your database schema:	mqsichangeproperties IB9NODE -c JDBCProviders -o myJDBCProvider -n databaseSchemaNames -v myTableNameA:mySchemaName01
+Change the JDBCProvider service myJDBCProvider to use the default database schema myDefaultSchemaName, and a table-specific database schema, where myTableNameA is the name of your database table, and mySchemaName01 is the name of your database schema:	mqsichangeproperties IB9NODE -c JDBCProviders -o myJDBCProvider -n databaseSchemaNames -v myDefaultSchemaName;myTableNameA:mySchemaName01
+Change the location of the JAR files for the IBM WebSphere MQ JMS client:	mqsichangeproperties IB9NODE -c JMSProviders -o WebSphere_MQ -n jarsURL -v file://D:\SIBClient\Java
+Change the value of the properties proprietaryAPIAttr2 and proprietaryAPIAttr3 for a user-defined JMS provider configurable service definition called BEA_Weblogic, where the properties represent the URL of the BEA WebLogic bindings and the DNS name of the JMS server:	mqsichangeproperties IB9NODE -c JMSProviders -o BEA_Weblogic -n proprietaryAPIAttr2, proprietaryAPIAttr3 -v t3://9.20.94.16:7001,BEAServerName
+Change the value of the jndiEnvironmentParms property in the definition of a user-defined JMS provider configurable service called myJMSprovider:	mqsichangeproperties IB9NODE -c JMSProviders -o myJMSprovider -n jndiEnvironmentParms -v domainName=myDomain;timeout=6000
+
+Set the properties of monitoring profile 'mp1' by using the contents of file mp1.xml:	mqsichangeproperties IB9NODE -c MonitoringProfiles -o mp1 -n profileProperties -p mp1.xml
+Change all connections that are used by the adapter myPeopleSoftAdapter.outadapter. After you run this command, all adapters connect to the production system (my.peoplesoft.production.com) instead of the test system (my.peoplesoft.qa.com):	mqsichangeproperties IB9NODE -c PeopleSoftConnection -o myPeopleSoftAdapter.outadapter -n hostName -v "my.peoplesoft.production.com"
+Import a policy set to a broker from a file:	mqsichangeproperties IB9NODE -c PolicySets -o Policy_2 -n ws-security -p policyset.xml
+Import a policy set bindings to a broker from a file:	mqsichangeproperties IB9NODE -c PolicySetBindings -o Bindings_2 -n ws-security -p bindings.xml
+
+
+Change a Resequence configurable service:	mqsichangeproperties IB9NODE -c Resequence -o myResequenceService -n missingMessageTimeoutSeconds -v 120
+Change all connections that are used by the adapter mySAPAdapter.outadapter. After you run this command, all adapters connect to the production system (production.sap.ibm.com) instead of the test system (test.sap.ibm.com): mqsichangeproperties IB9NODE -c SAPConnection -o mySAPAdapter -n applicationServerHost -v production.sap.ibm.com
+Change a SecurityProfiles configurable service to enable identity mapping using the WS-Trust v1.3 STS provider interface to Tivoli® Federated Identity Manager (TFIM) V6.2:	mqsichangeproperties IB9NODE -c SecurityProfiles -o TFIMv62MapSecProfile -n mapping,mappingConfig -v "WS-Trust v1.3 STS",http://wstrusthost1.ibm.com:9080/TrustServerWST13/services/RequestSecurityToken
+Change the connection timeout for queries issued by the WebSphere Service Registry and Repository nodes to 180 seconds:	mqsichangeproperties IB9NODE -c ServiceRegistries -o DefaultWSRR -n connectionTimeout -v 180
+Change the connection that is used by the adapter myAdapter.outadapter:  mqsichangeproperties IB9NODE -c SiebelConnection -o mySiebelAdapter.outadapter -n connectString -v "siebel://my.siebel.production.com/SBA_80/SSEObjMgr_enu"
+Update the TCPIPClient configurable service so that it does not create client connections until they are required:	mqsichangeproperties IB9NODE -c TCPIPClient -o ClientPort1452HostnameJsmith -n MinimumConnections -v 0
+Change the connection expiry time on TCPIPServer connections to 30 seconds:	mqsichangeproperties IB9NODE -c TCPIPServer -o ServerPort1452 -n ExpireConnectionSec -v 30
+Change the TCPIPClient configurable service to use alternative addresses:	mqsichangeproperties IB9NODE -c TCPIPClient -o MyTCPIPClient -n AlternativeAddresses -v smith6:1111;jones7
+Change the TCPIPClient configurable service to use a connection pool other than the main pool:	mqsichangeproperties IB9NODE -c TCPIPClient -o MyTCPIPClient -n UseUniqueConnectionPool -v true
+Change the TCP/IP connection manager to start the server connection on port 1445:	mqsichangeproperties IB9NODE -e default -o TCPIP/quiesce/Server -n port, 1445
+Change the TCP/IP connection manager to stop the server connection on port 1445:	mqsichangeproperties IB9NODE -e default -o TCPIP/quiesce/Server -n port, 1445
+Change the TCP/IP connection manager to quiesce the server connection on port 1445. A timeout for the quiesce is also supplied, with a value of 30 seconds:	mqsichangeproperties IB9NODE -e default -o TCPIP/quiesce/Server -n port, quiesceTimeoutSec -v 1445,30
+Change a Timer configurable service:	mqsichangeproperties IB9NODE -c Timer -o myTimerService -n timeoutIntervalSeconds -v 1
+Select content based filtering on the default integration server:	mqsichangeproperties IB9NODE -e default -o ContentBasedFiltering -n cbfEnabled -v true
+Select content based filtering on the default integration server and increase the number of evaluation threads to five:	mqsichangeproperties IB9NODE -e default -o ContentBasedFiltering -n validationThreads -v 5
+Change a JavaClassLoader service:	mqsichangeproperties IB9NODE -c JavaClassLoader -o myJavaClassLoader -n sharedJarPath -v /var/app2/jars
+Add a property to a configurable service of type UserDefined:	mqsichangeproperties IB9NODE -c UserDefined -o MyService1 -n VerifyRequestTimeout -v 60
+Delete a property of a configurable service of type UserDefined:	mqsichangeproperties IB9NODE -c UserDefined -o HTTP_Timeout -n VerifyRequestTimeout -d
+
+
+
+Parameter values for the cachemanager component---------------------------
+
+The following example displays the sizes of all maps in the embedded cache: mqsicacheadmin brokerName -c showMapSizes
+The following example uses the -cep parameter to connect to a catalog server, and displays the routing table for each WebSphere eXtreme Scale shard: mqsicacheadmin -cep server.company.com:2800 -c routetable
+The following example clears all data from the map named "myMap": mqsicacheadmin brokerName -c clearGrid -m myMap
+
+mqsichangetrace command -----------------------
+
+
+To collect and process a user trace for the default execution group use the command:	mqsichangetrace MB8BROKER -u -e default -l normal -c 5000
+To collect and process a service trace for flow f1 in the default execution group use the command:	mqsichangetrace MB8BROKER -t -e default -m fast
+To collect and process a service trace for an agent use the command:	mqsichangetrace MB8BROKER -t -b -m safe -l normal
+To switch off Trace nodes in the default execution group, use the command:	mqsichangetrace MB8BROKER –n off -e default
+
+
+
+
+mqsicreateconfigurableservice command---------------------------
+
+
+
+Create an Aggregation configurable service :  mqsicreateconfigurableservice MB8BROKER -c Aggregation -o myAggregationService -n queuePrefix,timeoutSeconds -v SET1,60
+Create a CICSConnection configurable service :	mqsicreateconfigurableservice MB8BROKER -c CICSConnection -o myCICSConnectionService -n cicsServer,clientApplid,clientQualifier,connectionTimeoutSecs,requestTimeoutSecs -v tcp://test.cics.ibm.com:12345,BRKApp,BRKQual,10,5 
+Create a Collector configurable service : mqsicreateconfigurableservice MB8BROKER -c Collector -o myCollectorService -n queuePrefix,collectionExpirySeconds -v SET1,60 
+
+Create a Connect:Direct® server configurable service :	mqsicreateconfigurableservice MB8BROKER -c CDServer -o test -n Hostname,Port -v 9.122.17.58,1369 
+
+To install a new connector provider call MyProvider that uses the ConnectionFactory MyFactory and has its JAR files in the directory C:\temp\jars:	mqsicreateconfigurableservice MB8BROKER -c ConnectorProviders -o MyProvider -n connectorClassName,jarsURL –v com.ibm.broker.MyFactory,C:\temp\jars 
+
+
+
+Create a CORBA configurable service that specifies the location of the object reference:	mqsicreateconfigurableservice MB8BROKER -c CORBA -o myCORBAService -n namingService,objectReferenceName -v localhost:2809,Europe.region/Market.object
+
+Create an EmailServer configurable service to which the EmailInput node or message flow can refer at run time to connect to an email server:  mqsicreateconfigurableservice MB8BROKER -c EmailServer -o myEmailConfigurableServiceName -n serverName,securityIdentity -v pop3://test.email.server.ibm.com:12345,mySecurityIdentityObjectName
+
+
+Create an FtpServer configurable service:	mqsicreateconfigurableservice MB8BROKER -c FtpServer -o Server01 -n serverName,scanDelay,transferMode,connectionType,securityIdentity -v one.hursley.abc.com:123,20,Binary,ACTIVE,secId
+Create an FtpServer configurable service to use SFTP without strict host key checking:	mqsicreateconfigurableservice MB8BROKER -c FtpServer -o TEST1 -n protocol,serverName,scanDelay,remoteDirectory,securityIdentity,cipher,compression,strictHostKeyChecking -v  SFTP,winlnx58,30,.,chbatey,blowfish-cbc,9,no
+Create an IMSConnect configurable service for the IMS™ instance IMSA that is running on test.ims.ibm.com port 9999:	mqsicreateconfigurableservice MB8BROKER -c IMSConnect -o myIMSConnectService -n Hostname,PortNumber,DataStoreName -v test.ims.ibm.com,9999,IMSA
+Create a JavaClassLoader service:	mqsicreateconfigurableservice MB8BROKER -c JavaClassLoader -o myJavaClassLoader -n includedDeployedJars,sharedJarPath -v "jcnapp1.jar","/var/app1/jars"
+
+
+Add a JMS provider that is called "MyProviderXYZ":	mqsicreateconfigurableservice MB8BROKER -c JMSProviders -o JMS_MyProviderXYZ
+Add a JMS provider that is called "ProviderABC", with default values for the resource properties:	mqsicreateconfigurableservice MB8BROKER -c JMSProviders -o JMS_ProviderABC
+
+
+Add a JMS provider that is called "BEAV91", specifying the name of an IBM® supplied Java™ class that is called com.ibm.broker.apihandler.BEAWebLogicAPIHandler to handle vendor-specific API calls:
+mqsicreateconfigurableservice MB8BROKER -c JMSProviders -o BEAV91 -n proprietaryAPIHandler,proprietaryAPIAttr1,proprietaryAPIAttr2,proprietaryAPIAttr3 –v com.ibm.broker.apihandler.BEAWebLogicAPIHandler,weblogic.jndi.WLInitialContextFactory,t3://19.21.194.126:7001,BEAServerName 
+Create a monitoring profile with the name 'mp1' to broker MB8BROKER:	mqsicreateconfigurableservice MB8BROKER -c MonitoringProfiles -o mp1
+Create a PeopleSoftConnection configurable service for the PeopleSoft instance that is running on my.peoplesoft.qa.com:	mqsicreateconfigurableservice MB8BROKER -c PeopleSoftConnection -o myPeopleSoftAdapter.outadapter -n hostName,port -v "my.peoplesoft.qa.com",9000
+
+
+Create a Resequence configurable service that uses a set of queues that are prefixed with SYSTEM.BROKER.EDA.SET1, and with a missing message timeout of 60 seconds: mqsicreateconfigurableservice MB8BROKER -c Resequence -o myResequenceService -n queuePrefix,missingMessageTimeoutSeconds -v SET1,60 
+Create a SAPConnection configurable service for the SAP adapter mySAPAdapter.outadapter that connects to the SAP host test.sap.ibm.com, and uses client 001 for the connections into that server: mqsicreateconfigurableservice MB8BROKER -c SAPConnection -o mySAPAdapter.outadapter -n applicationServerHost,client -v test.sap.ibm.com,001
+
+
+
+
+
+Create a security profile for a WS-Trust V1.3 STS provider by using Tivoli® Federated Identity Manager (TFIM) V6.2: mqsicreateconfigurableservice MB8BROKER -c SecurityProfiles -o myWSTrustTFIMv62Profile -n authentication,mapping,authorization,propagation,mappingConfig -v "WS-Trust v1.3 STS","WS-Trust v1.3 STS","WS-Trust v1.3 STS",TRUE,http://wstrusthost1.ibm.com:9080/TrustServerWST13/services/RequestSecurityToken
+
+
+Create a SiebelConnection configurable service: mqsicreateconfigurableservice MB8BROKER -c SiebelConnection -o mySiebelAdapter.outadapter -n connectString -v "siebel://my.siebel.qa.com/SBA_80/SSEObjMgr_enu"
+
+
+Create a TCPIPServer configurable service: mqsicreateconfigurableservice MB8BROKER -c TCPIPServer -o ServerPort1452 -n Port,MaximumConnections,ExpireConnectionSec -v 1452,1000,15  
+Create a TCPIPClient configurable service: mqsicreateconfigurableservice MB8BROKER -c TCPIPClient -o ClientPort1452HostnameJsmith -n Port,Hostname,AlternativeAddresses,MinimumConnections,MaximumConnections -v 1452,jsmith.hursley.ibm.com,jones:1111;edwards,5,10  
+
+
+Create a Timer configurable service that uses a queue that is prefixed with SYSTEM.BROKER.TIMEOUT.SET1, and has a timeout of 5 seconds: mqsicreateconfigurableservice MB8BROKER -c Timer -o myTimerService -n queuePrefix,timeoutIntervalSeconds -v SET1,5 
+Create a UserDefined service: mqsicreateconfigurableservice MB8BROKER -c UserDefined -o HTTP_Timeout -n VerifyRequestTimeout -v 60
+
+
+Create a WXSServer configurable service : mqsicreateconfigurableservice MB8BROKER -c WXSServer -o xc10 -n catalogServiceEndPoints,gridName,overrideObjectGridFile,securityIdentity -v "server.ibm.com:2809","myGrid","C:\Brokers\WebSphere_eXtreme_Scale\xc10\xc10Client.xml
+
+
+mqsicreateexecutiongroup command------------------------------
+
+
+Create an execution group called EG1 on the broker that is hosted by the queue manager QMGR, which is listening on fred.abc.com:1414:    mqsicreateexecutiongroup -i fred.abc.com -p 1414 -q QMGR –e EG1
+Create an execution group called EG2 on the broker that is defined by the connection parameters in file BROKER.broker :   mqsicreateexecutiongroup –n BROKER.broker –e EG2
+Create an execution group EG3 on the broker that is defined by the connection parameters in file FRED.broker. Wait 5 minutes for the broker to respond, and send output to trace.txt: mqsicreateexecutiongroup –n FRED.broker –e EG3 –w 300 –v trace.txt
+
+mqsicvp command-----------------------------
+
+
+Data source name (DSN) MyDB is associated with the broker MB8BROKER by using the mqsisetdbparms command: mqsicvp MB8BROKER -n MyDB
+DSNMyDB is compared against a secondary DSN MyDB2 associated with the broker MB8BROKER by using the mqsisetdbparms command: mqsicvp MB8BROKER -n MyDB -c MyDB2
+The fully qualified DSNMyDB is compared against a secondary fully qualified DSN MyDB2 by using the primary and secondary user IDs and passwords: mqsicvp –n MyDB –u username –p password –c MyDB2 –i username2 –a password2
+
+mqsideletebroker command ---------------------
+
+Delete the broker and its associated queue manager: mqsideletebroker MB8BROKER -q
+Delete the broker and all its security queues that are defined on the associated queue manager: mqsideletebroker MB8BROKER -s
+
+mqsideleteconfigurableservice command----------------
+
+
+Delete a CICSConnection configurable service for broker MB8BROKER: mqsideleteconfigurableservice MB8BROKER -c CICSConnection -o myCICSConnectionService
+Delete a CORBA configurable service for broker MB8BROKER: mqsideleteconfigurableservice MB8BROKER -c CORBA -o myCORBAService
+Delete an EmailServer configurable service for broker MB8BROKER called myEmailConfigurableServiceName that the EmailInput node or message flow is referring to at runtime: mqsideleteconfigurableservice MB8BROKER -c EmailServer -o myEmailConfigurableServiceName
+Delete an FtpServer configurable service for broker MB8BROKER: mqsideleteconfigurableservice MB8BROKER -c FtpServer -o Server01
+
+Delete an IMS™ configurable service called myIMSconnectService: mqsideleteconfigurableservice MB8BROKER -c IMSConnect -o myIMSconnectService
+Delete a JavaClassLoader configurable service: mqsideleteconfigurableservice MB8BROKER -c JavaClassLoader -o myJavaClassLoader
+Delete a JMS provider configurable service called MyProviderXYZ: mqsideleteconfigurableservice MB8BROKER -c JMSProviders -o JMS_MyProviderXYZ
+Delete a monitoring profile: mqsideleteconfigurableservice MB8BROKER -c MonitoringProfiles -o myMonitoringProfile
+
+
+Delete the PeopleSoftConnection configurable service that is associated with myPeopleSoftAdapter.outadapter: mqsideleteconfigurableservice MB8BROKER -c PeopleSoftConnection -o myPeopleSoftAdapter.outadapter
+Delete a security profile for LDAP use: mqsideleteconfigurableservice MB8BROKER -c SecurityProfiles -o MyLDAPProfile
+Delete the SiebelConnection configurable service that is associated with mySiebelAdapter.outadapter: mqsideleteconfigurableservice MB8BROKER -c SiebelConnection -o mySiebelAdapter.outadapter
+Delete a TCPIPClient configurable service: mqsideleteconfigurableservice MB8BROKER -c TCPIPClient -o ClientPort1452HostnameJsmith
+Delete a TCPIPServer configurable service: mqsideleteconfigurableservice MB8BROKER -c TCPIPServer -o ServerPort1452
+
+mqsideleteexecutiongroup command---------------------------
+
+Delete an execution group called EG1 on the broker defined by connection parameters specified by the file BKR1.broker:   mqsideleteexecutiongroup –n BKR1.broker –e EG1 
+Delete an execution group EG2 on the broker specified by the file FRED.broker. Wait 5 minutes for the broker to tidy up related resources, and send output to trace.txt :  mqsideleteexecutiongroup –n FRED.broker –e EG2 –w 300 –v trace.txt
+Delete the execution group EG3 on the locally defined broker MYBROKER:   mqsideleteexecutiongroup MYBROKER –e EG3
+
+mqsideploy command --------------
+
+Deploy a BAR file to the broker identified by the connection parameters in the file b1.broker, and remove all currently-deployed message flows and message sets from the execution group as part of the deployment. Allow 10 minutes for the broker to reply: mqsideploy -n b1.broker -e default -a mybar.bar -m -w 600 
+Remove the message flow top and the dictionary bar from the execution group default on the broker identified by the connection parameters in the file b1.broker : mqsideploy –n b1.broker –e default –d top.cmf:bar.dictionary
+
+mqsiexplain command---------
+
+The following example is used to display the full content of error message BIP7152: mqsiexplain 7152
+
+
+mqsilist command ---------------
+
+
+The following example lists all brokers created in the current installation: mqsilist -d0
+The following example lists the deployed objects that are configured for application myApplication in the default execution group: mqsilist MB8BROKER -e default -k myApplication
+The following example lists the deployed objects that are configured for library myEGLibrary, which is contained in application myApplication, in the default execution group: mqsilist MB8BROKER -e default -k myApplication -y myEGLibrary
+The following example returns detailed information about application myApplication in the default execution group: mqsilist MB8BROKER -e default -k myApplication -d2
+The following example lists all deployed objects that are configured in application myApplication: mqsilist MB8BROKER -e default -k myApplication -r
+The following example requests a summary of the execution groups that are defined on a specific broker. (The -d parameter is not specified and therefore has the default value of 1.): mqsilist MB8BROKER 
+
+mqsimanagexalinks command ------------------
+
+
+To create the symbolic links that are required for Oracle databases: mqsimanagexalinks create DD60 "C:\Program Files (x86)\IBM\WebSphere MQ\exits64" "C:\Program Files (x86)\IBM\WebSphere MQ\exits" "C:\Program Files\IBM\MQSI\8.0.0.2"
+To remove the symbolic links that are created for Oracle databases: mqsimanagexalinks remove DD60 "C:\Program Files (x86)\IBM\WebSphere MQ\exits64""C:\Program Files (x86)\IBM\WebSphere MQ\exits"
+To list the supported database drivers: mqsimanagexalinks list
+
+
+mqsimigratecomponents command-----------
+
+
+The following example shows a split migration from Version 7.0 to Version 8.0:
+
+mqsimigratecomponents BROKER1 -1
+mqsimigratecomponents BROKER1 -2
+mqsimigratecomponents BROKER1 -3The following example shows a migration from Version 8.0 back to Version 7.0:
+
+mqsimigratecomponents MYBROKER -t 7.0.0.3
+
+
+mqsimod command---------
+
+Run the following mqsimode command for every broker: mqsimode –i localhost –p 2414 –q MB8QMGR –o advanced
+
+Run the following mqsimode command to change the mode of your broker from standard to advanced (where Broker_Name is the name of your broker): mqsimode –i localhost –p 1414 –q MB8QMGR –o advanced
+
+
+mqsipackagebar command-----------
+
+
+The following example creates a BAR file called myflow.bar in the workspace at C:\Workspace. The Test.msgflow message flow is added to the BAR file without being compiled: mqsipackagebar -w C:\Workspace -a myflow.bar -o TestFlowProject\TestFlow\Test.msgflow
+
+The following example creates a BAR file called myflow.bar in the workspace at C:\Workspace. The application Application1 is added to the BAR file: mqsipackagebar -w C:\Workspace -a myflow.bar -k Application1 -v tracefile
+
+mqsireadlog command-------------
+
+
+Retrieve the user trace for broker MB8BROKER: mqsireadlog MB8BROKER -u -e default -o trace.xml
+Retrieve service trace for utility mqsiformatlog: mqsireadlog utility -t -b agent -f -o trace.xml
+
+mqsireload command ---------
+
+mqsireload broker1 
+
+
+mqsireloadsecurity command ---------------
+
+Reload the cache for all users on the specified broker. : mqsireloadsecurity BROKER1
+Reload the cache for a single user on the specified broker: mqsireloadsecurity -n BROKER1.broker -u user1 
+Reload the cache for a list of users, and wait for 600 seconds before returning: mqsireloadsecurity My_Broker -u user1:user2:user3 -w 600 
+
+
+mqsiremovebrokerinstance command---------
+
+mqsiremovebrokerinstance MyBroker 
+
+
+mqsireportbroker command -------------------
+
+mqsireportbroker SOAPBR
+
+
+mqsireportdbparms command---------------------
+
+
+Checking whether there are security credentials associated with resources:
+
+mqsireportdbparms broker_name -n ftp::server
+mqsireportdbparms broker_name -n ftp
+
+
+Testing if a password for a resource is associated with a specific broker.:
+
+
+mqsireportdbparms MB8BROKER -n SFTP::server -u user_id -i SSH_identity -r password
+mqsireportdbparms MB8BROKER -n userdb -u user_id -p password
+
+
+mqsireportflowmonitoring command----------
+
+
+Request a report of the monitoring options for message flow "MyFlow1" in the execution group "default" for broker "BrokerA": mqsireportflowmonitoring BrokerA -e default -f MyFlow1
+Request a report of the current monitoring options for all message flows in all execution groups for broker "BrokerA" :    mqsireportflowmonitoring BrokerA -g -j
+Display monitoring options for all message flows in application application1 in execution group default: mqsireportflowmonitoring MB8BROKER -e default -k application1 -j 
+
+
+
+mqsireportflowstats command--------------------
+
+Request a report for message flow "MyFlow1" in the execution group "default" for broker "BrokerA" for both archive and snapshot statistics collection: mqsireportflowstats BrokerA -s -a -e default -f MyFlow1
+Request a report of the snapshot options that are currently stored for all message flows in all execution groups for broker "BrokerA" : mqsireportflowstats BrokerA -s -g -j
+
+mqsireportflowuserexits command ----------------
+
+
+mqsireportflowuserexits MB8BROKER -e default -f MYFLOW
+
+
+mqsireportproperties command--------------------
+
+Displaying properties associated with broker components:
+
+
+Check if the broker-wide listener is active for deployed HTTP and SOAP nodes in one or more execution groups: mqsireportproperties MB8BROKER -b httplistener -o HTTPListener -n startListener
+Display the properties for the cache manager: mqsireportproperties MB8BROKER -b cachemanager -o CacheManager -r
+Display all the current HTTPListener settings associated with HTTP and SOAP nodes (defined in the httplistener component): mqsireportproperties MB8BROKER -b httplistener -o HTTPListener -a
+Display the HTTPSConnector port setting for the HTTP nodes (defined in the httplistener component): mqsireportproperties MB8BROKER -b httplistener -o HTTPSConnector -n port
+Display all Service Federation object properties and their values: mqsichangeproperties MB8BROKER -b servicefederation -o AllReportableEntityNames -r
+
+Displaying properties associated with execution groups:
+
+
+Display the FTE agent name for execution group FTESAMPLE in broker MB8BROKER: mqsireportproperties MB8BROKER -e FTESAMPLE -o FTEAgent -n agentName
+If the agent has been created, the command returns the agent name. If the agent has not been created, the command returns an empty string.
+Check if the deployed HTTP nodes are using the execution group embedded listener: mqsireportproperties MB8BROKER -e exgroup1 -o ExecutionGroup -n httpNodesUseEmbeddedListener
+Check if the deployed SOAP nodes are using the execution group (embedded) listener: mqsireportproperties MB8BROKER -e exgroup1 -o ExecutionGroup -n soapNodesUseEmbeddedListener
+Display the properties that control the creation of an SFM proxy for an execution group that is to be used as an SFM Connectivity Provider: mqsireportproperties MB8BROKER -e exgroup1 -o ServiceFederationManager -a
+
+Displaying properties associated with configurable services:
+
+
+Display all Aggregation configurable services: mqsireportproperties MB8BROKER -c Aggregation -o AllReportableEntityNames -r
+Display all configurable services for Connect:Direct® server (that you have defined to this broker with the mqsicreateconfigurableservice command): mqsireportproperties MB8BROKER -c CDServer -o AllReportableEntityNames -r
+
+
+Display all properties of the FtpServer configurable service called TEST1: mqsireportproperties MB8BROKER -c FtpServer -o TEST1 -r
+Display the protocol property setting of the FtpServer configurable service called TEST1: mqsireportproperties MB8BROKER -c FtpServer -o TEST1 -n protocol
+Report the properties of the Oracle JDBCProvider configurable service: mqsireportproperties MB8BROKER -c JDBCProviders -o Oracle -r
+Display the properties for all the broker's JMS provider resources (default JMS provider resources and those configurable services that you have defined by using the mqsicreateconfigurableservice command): mqsireportproperties MB8BROKER -c JMSProviders -o AllReportableEntityNames -r
+Display the properties for all the JMS provider resources of WebSphere MQ: mqsireportproperties MB8BROKER -c JMSProviders 
+
+
+
+Display the properties for all the JMS provider resources (default JMS provider resources and those configurable services that you have defined to this broker with the mqsicreateconfigurableservice command):
+mqsireportproperties MB8BROKER -c JMSProviders -o BEA_WebLogic –r
+
+
+Export policy set Policy_2 in broker MB8BROKER to file policyset.xml:  mqsireportproperties MB8BROKER -c PolicySets -o Policy_2 -n ws-security -p policyset.xml
+Export a policy set bindings from a broker to a file: mqsireportproperties MB8BROKER -c PolicySetBindings -o Bindings_2 -n ws-security -p bindings.xml
+Display the properties for all the security profiles (default security profiles and any that you have defined on this broker by using the mqsicreateconfigurableservice command): mqsireportproperties MB8BROKER -c SecurityProfiles -o AllReportableEntityNames -r
+Display the properties for the security profile called MyFirstSecurityProfile: mqsireportproperties MB8BROKER -c SecurityProfiles -o MyFirstSecurityProfile -r
+
+mqsireportresourcestats command------------------
+
+
+Request a report for the execution group default on broker BrokerA for statistics collection for all resources: mqsireportresourcestats BrokerA -e default
+Request a report for all execution groups on broker BrokerA for statistics collection for all resources: mqsireportresourcestats BrokerA
+
+mqsirestorebroker command------------------------
+
+
+The following example restores broker MB8BROKER on Windows: mqsirestorebroker MB8BROKER -d C:\MQSI\BACKUP -a 20090101.zip
+
+mqsisetdbparms command---------------------------
+
+mqsisetdbparms MB8BROKER -n cics::mySecurityIdentity -u myUserID -p myPassword
+mqsisetdbparms MB8BROKER -n odbc::USERDB2 -u myuserid2 -p mypassword2
+mqsisetdbparms MB8BROKER -n odbc::USERDB2::myExecutionGroup -u myuserid3 -p mypassword3
+mqsisetdbparms MB8BROKER -n dsn::DSN -u myuserid4 -p mypassword4
+
+
+following examples delete all the values that are defined for specific resource names from the broker registry:
+
+mqsisetdbparms MB8BROKER -n USERDB1 -d
+mqsisetdbparms MB8BROKER -n odbc::USERDB2 -d
+mqsisetdbparms MB8BROKER -n odbc::USERDB2::myExecutionGroup -d
+
+
+mqsisetdbparms MB8BROKER -n email::mySecurityIdentityObjectName -u myUserID -p myPassword
+
+JDBC type 4 connection:
+
+mqsisetdbparms MB8BROKER -n jdbc::mySecurityIdentity -u myuserid -p secretpw
+
+JMS and JNDI resource names:
+
+For example, to specify a user ID of myuserid and password secret for JMS topic connection factory tcf1, use the following syntax: mqsisetdbparms MB8BROKER -n jms::tcf1 -u myuserid -p secret
+Similarly, to specify the same security for a JNDI initial context com.sun.jndi.fscontext.RefFSContextFactory, enter the following command: mqsisetdbparms MB8BROKER -n jndi::com.sun.jndi.fscontext.RefFSContextFactory -u myuserid -p secret
+
+
+LDAP servers:
+
+
+Use the mqsisetdbparms command to set up authorization credentials for the LDAP server ldap.mydomain.com: mqsisetdbparms MB8BROKER -n ldap::ldap.mydomain.com -u ldapuid -p ********
+To set up authorization for other servers, use the command to set up default credentials: mqsisetdbparms MB8BROKER -n ldap::LDAP -u ldapother -p ********
+If you want the broker to bind anonymously to an LDAP server, specify the server name and the user ID anonymous: mqsisetdbparms MB8BROKER -n ldap::ldap.mydomain2.com -u anonymous -p ********
+
+
+
+WebSphere Adapters account names:
+
+Use the mqsisetdbparms command in the following format to configure an account name with a user name and password for the WebSphere Adapters: mqsisetdbparms broker name -n adapter name -u user name -p password
+
+IMS connections:
+
+Use the mqsisetdbparms command in the following format to associate a user ID and password pair with an IMS Connect connection: mqsisetdbparms MB8BROKER -n ims::mySecurityIdentity -u myuserid -p mypassword
+
+FTP and SFTP server connections:
+
+
+Use the mqsisetdbparms command to associate a user ID and password with an FTP server connection: mqsisetdbparms MB8BROKER -n ftp::identityA -u user1 -p MyPassword 
+Use the mqsisetdbparms command to associate a user ID and password with an SFTP server connection: mqsisetdbparms MB8BROKER -n sftp::identityB -u user2 -p MyPassword 
+Use the mqsisetdbparms command to associate a user ID and SSH identity file with an SFTP server connection: mqsisetdbparms MB8BROKER -n sftp::identityC -u user3 -i C:\key_rsa_no_pp
+ Use the mqsisetdbparms command to associate a user ID, SSH identity file, and pass phrase with an SFTP server connection: mqsisetdbparms MB8BROKER -n sftp::identityD -u user4 -i C:\key_rsa_pp -r MyPassPhrase 
+
+
+mqsiwebuseradmin command---------------------
+
+
+Create a web user account and password and specify the associated role (system user account): mqsiwebuseradmin MB8BROKER -c -u webuser1 -r admin -a passw0rd
+Change the password for webuser1: mqsiwebuseradmin MB8BROKER -m -u webuser1 -a n3wpass
+Delete the web user account for webuser1: mqsiwebuseradmin MB8BROKER -d -u webuser1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

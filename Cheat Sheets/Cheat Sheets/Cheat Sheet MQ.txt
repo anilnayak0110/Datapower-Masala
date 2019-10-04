@@ -1,0 +1,73 @@
+http://bencane.com/2013/04/22/websphere-mq-cheat-sheet-for-system-administrators/
+
+Create a Queue Manager					:$ crtmqm REPLACE_QMGR_NAME
+Delete a Queue Manager					:$ dltmqm REPLACE_QMGR_NAME
+Start Queue Manager						:$ strmqm REPLACE_QMGR_NAME
+Stopping QM (Wait)						:$ endmqm -w REPLACE_QMGR_NAME
+Stopping QM (Immd)						:$ endmqm -i REPLACE_QMGR_NAME
+Start QM(Init Script)					:$ service ibm.com-WebSphere_MQ start
+Stopping QM(Init Script)				:$ service ibm.com-WebSphere_MQ stop
+Start MQ Listener						:$ echo "start LISTENER(SYSTEM.DEFAULT.LISTENER.TCP)" | runmqsc REPLACE_QMGR_NAME
+Stop MQ Listener						:$ echo "stop LISTENER(SYSTEM.DEFAULT.LISTENER.TCP)" | runmqsc REPLACE_QMGR_NAME
+Display QM & Status						:$ dspmq
+Set MQ Privileges						:$ setmqaut -m REPLACE_QMGR_NAME -t qmgr -p REPLACE_USER REPLACE_PLUS_OR_MINUS_PRIVILEGE
+Set MQ Privileges By Groups				:$ setmqaut -m REPLACE_QMGR_NAME -t qmgr -g REPLACE_GROUP REPLACE_PLUS_OR_MINUS_PRIVILEGE
+Display MQ Privileges By Users			:$ dspmqaut -m REPLACE_QMGR_NAME -t qmgr -p REPLACE_USER
+Display MQ Privileges By Groups			:$ dspmqaut -m REPLACE_QMGR_NAME -t qmgr -g REPLACE_GROUP
+Lookup MQ Error Numbers					:$ mqrc REPLACE_ERROR_NUM
+Pop (GET) Messages off a queue			:$ amqsget REPLACE_Q_NAME REPLACE_QMGR_NAME
+Browse Messages in a queue				:$ amqsbcg REPLACE_Q_NAME REPLACE_QMGR_NAME
+Open a Queue for writing				:$ amqsput REPLACE_Q_NAME REPLACE_QMGR_NAME
+Open Websphere MQ CLI					:$ runmqsc REPLACE_QMGR_NAME
+Start Message flow						:$ 
+
+Display Listeners of QM					: dis lsstatus(*)
+Display details of specific listener	: dis listener(LS) <--Here LS is the name of listener
+Display Listener status of a Listener	: display lsstatus(listener_name)  
+While executing this command if we find any error. Possibly the port could be being used. Check the logs
+
+
+
+
+Start MQ Listener						: start LISTENER(SYSTEM.DEFAULT.LISTENER.TCP)
+Stop MQ Listener						: stop LISTENER(SYSTEM.DEFAULT.LISTENER.TCP)
+Change Listener Port					: alter listener(LS) trptype(TCP) port(use what ever port is opened)
+
+Display Channel Authentication			:dis qmgr chlauth
+Disable Channel Authentication			:alter qmgr chlauth(disabled)
+Display All Queues						:display queue(*) 				- Need to be inside QM to run
+Display Specific Queues					:display queue(REPLACE_Q_NAME)
+Display Specific Queuss(Short hand) 	:dis q(REPLACE_Q_NAME)
+Display Local Queues only (All)			:display qlocal(*)
+Display Local Queues (Specific)			:display qlocal(REPLACE_Q_NAME)
+Short hand								:dis ql(REPLACE_Q_NAME)
+Display Alias Queues only(All)			:display qalias(*)
+Display Specific Queue					:display qalias(REPLACE_Q_NAME)
+Short hand								:dis qa(REPLACE_Q_NAME)
+Display Cluster Queues only(All)		:display qcluster(*)
+Specific Queue							:display qcluster(REPLACE_Q_NAME)
+Short hand								:dis qc(REPLACE_Q_NAME)
+Display Channels(All)					:display channel(*)
+Specific Channel						:display channel(REPLACE_CHANNEL_NAME)
+Short hand								:dis channel(REPLACE_CHANNEL_NAME)
+Display Channel Status(All)				:display chstatus(*)
+Specific Channel						:display chstatus(REPLACE_CHANNEL_NAME)
+Short hand								:dis chstatus(REPLACE_CHANNEL_NAME)
+Display Local QM Information			:display qmgr
+Display Cluster QM Information			:display clusqmgr(REPLACE_CLUSQMGR_NAME)
+Show No of I/O hreads open				:display qstatus(REPLACE_Q_NAME) IPPROCS OPPROCS
+Find PID of Processes Accessing Queue	:display qstatus(REPLACE_Q_NAME) TYPE(HANDLE) ALL
+Refresh Cluster Queue Manager			:refresh cluster(REPLACE_CLUSQMGR_NAME)
+Start Channel							:start channel(REPLACE_CHANNEL_NAME)
+Start Message Flow						: 
+
+
+Navigate to QManage 					: cd /var/mqm/qmgrs/QMGR_NAME (QM Name is case sensitive)
+Navigate to Errors folder				: cd /var/mqm/qmgrs/QMGR_NAME/errors
+
+
+
+BROKER
+
+mqsilist -d0							: lists all the brokers
+

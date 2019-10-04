@@ -1,0 +1,27 @@
+ 
+
+--working starts
+mqsideploy -i localhost -p 4419 -e PERF2_SERVER -a E:\WSpaces\KCB\Ph2\ESB_2.0.1\BARfiles\Test.bar
+
+4419 : Port is QM Port and not server port.
+
+--working ends
+
+
+mqsicreatebar -data E:\MessageBrokerToolkitWorkspace -b E:\MessageBrokerToolkitWorkspace\MyProject\MyFlow.bar -p MyProject -o MyProject\MyFlow.msgflow -cleanBuild -trace
+
+
+
+
+
+mqsicreatebar -data E:\WSpaces\KCB\Ph2\ESB_2.0.1 -b E:\WSpaces\KCB\Ph2\ESB_2.0.1\Test\PistaSingh.bar -p Test -o Test\test.msgflow -cleanBuild -trace
+
+
+mqsicreatebar -data E:\WSpaces\KCB\Ph2\ESB_2.0.1 -b E:\WSpaces\KCB\Ph2\ESB_2.0.1\Test\PistaSingh.bar -a Test -o Test\test.msgflow -cleanBuild -trace
+mqsicreatebar -data E:\WSpaces\KCB\Ph2\ESB_2.0.1 -b PistaSingh.bar -p Test -o Test\test.msgflow
+
+mqsipackagebar -a e:\pistasingh.bar -k E:\WSpaces\KCB\Ph2\ESB_2.0.1\Test\test.msgflow -v traceFile
+
+BIP1840S No valid resources found to add to the BAR file. Check that rootLocation is correct and specify at least one resource by using one or more of the -k, -y, -n, or -o options.
+ 
+

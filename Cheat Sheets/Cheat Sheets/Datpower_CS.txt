@@ -1,0 +1,17 @@
+command									-	Purpose with where it can be executed.
+		
+co or config							-	Goto Configuration Mode
+show int								-	Shows IP address assigned to the datpaower appliances
+int eth0								-	Goes to Ehternet 0 configuration mode. The prompt changes to the appropriate ethernet. Eg. "xi52(config ethernet eth0)" 
+ip address <ip> <subnetmask>			-	Assigns new IP address. Must be executed after "int eth0" or "int eth1" or "int eth2" or "int eth3"
+exit									-	Exits current configuration mode. Takes to its super mode. Eg. After "xi52(config ethernet eth0)"  mode, if we type exit, we get "xi52(config)"
+write mem								-	Saves the new configuration (This command works only when we are in 'Config' mode. Exit command will take us to 'Config' Mode)
+		
+shutdown reboot							-	Shuts down and reboots the VM
+shutdown reload							-	Restart the appliance
+shutdown halt							-	Shuts down the appliance. We need to explicitely power off from the VM player as CPU gets turned off for the VM and Video rendering continues as is. 
+shutdown halt 10						- 	Shuts down the appliance after 10 seconds. 
+test tcp-connection 10.1.0.121 389 		-   Telnet
+
+
+

@@ -1,0 +1,8 @@
+Put the commands
+
+
+net ping <hostname>													- Ping hosts
+system show all														- Shows the current system status (up / running / down)
+system show status													- Shows detailed status
+system poweroff														- Shuts down the system
+

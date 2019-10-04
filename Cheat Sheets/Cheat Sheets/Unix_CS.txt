@@ -1,0 +1,173 @@
+tcpdump -i any -s0 host 172.17.208.70 -w filename.cap		-   Capture tcp dump from a specific host. The .cap is the extension recognized by wireshark. IP Belongs to the Provider
+															-	tcpdump is fired on the consumer. 
+															
+tcpdump -w something.txt -i eth0 port 7806
+
+
+netstat -ltnp | grep "*"									-	List down ports and its listening applications
+systemctl stop firewalld									- 	Disable Firewall
+chkconfig firewalld off										-	Permanently disable firewall ( Note: Forwarding request to 'systemctl disable firewalld.service'.Removed symlink /etc/systemd/system/multi-user.target.wants/firewalld.service. Removed symlink /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service )
+vim /root/.bash_profile										-	Edit Bash Profile of root
+tail -f /var/log/messages									-	Lookup for last messages of the log
+netstat - an | grep 7845 | wc - l							-	Lists number of connections active on a given port. 
+chmod 777 QM1AutoStart.service								-	Provide full permissions to a given service or folder
+init 0														-   Power off the machine
+init 6														- 	Reboot the machine
+iptables -D INPUT -s 123.45.6.7 -j DROP						- 	unblock ip in linux (Ip to be unblocked)
+iptables -A INPUT -s 172.17.80.133 -j DROP					- 	block ip in linux (IP to be blocked)
+free -h														-	Check the free memory
+
+FTP
+rpm -qa | grep ftp											-	Check if FTP is installed	
+service vsftpd status										-	Check FTP status
+service vsftpd start										-	Start the FTP Server
+service vsftpd stop											-	Stop the FTP Server 
+service vsftpd restart										-	Restert the FTP Server 
+
+Windows IP Flushing
+
+ipconfig /release
+ipconfig /flushdns
+ipconfig /renew
+ 
+
+
+---------------------------------
+
+root@rhel1 ~]# groupadd dba 									-		Adding Group dba
+[root@rhel1 ~]# groupadd oinstall								-		Adding group oinstall
+[root@rhel1 ~]# groupadd oper									-		Adding group oper 
+[root@rhel1 ~]# useradd -g oinstall -G dba,oper oracle 			-		Adding user 'oracle' and binding it to the groups
+[root@rhel1 ~]# passwd oracle									-		Changing password
+Changing password for user oracle.			
+New password: 
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+[root@rhel1 ~]# 
+[root@rhel1 ~]# getenforce
+Enforcing
+[root@rhel1 ~]# systemctl stop firewalld
+[root@rhel1 ~]# 
+
+
+root@rhel1 ~]# df -h
+Filesystem             Size  Used Avail Use% Mounted on
+/dev/mapper/rhel-root   17G  3.5G   14G  21% /
+devtmpfs               1.9G     0  1.9G   0% /dev
+tmpfs                  1.9G     0  1.9G   0% /dev/shm
+tmpfs                  1.9G  9.1M  1.9G   1% /run
+tmpfs                  1.9G     0  1.9G   0% /sys/fs/cgroup
+/dev/sda1             1014M  179M  836M  18% /boot
+tmpfs                  378M   36K  378M   1% /run/user/0
+/dev/sr0               3.8G  3.8G     0 100% /run/media/root/RHEL-7.4 Server.x86_64
+[root@rhel1 ~]# mkdir -p /u01/app/oracle
+[root@rhel1 ~]# chmod -R 775 /u01 
+[root@rhel1 ~]# chown -R oracle:oinstall
+chown: missing operand after ‘oracle:oinstall’
+Try 'chown --help' for more information.
+[root@rhel1 ~]# chown -R oracle:oinstall /u01
+[root@rhel1 ~]# 
+
+
+
+
+
+[oracle@rhel1 database]$ free -g
+              total        used        free      shared  buff/cache   available
+Mem:              3           0           0           0           2           2
+Swap:             1           0           1
+[oracle@rhel1 database]$ cd
+[oracle@rhel1 ~]$ 
+[oracle@rhel1 ~]$ 
+[oracle@rhel1 ~]$ cat /etc/fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Thu Nov 22 20:45:01 2018
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/rhel-root   /                       xfs     defaults        0 0
+UUID=805ac0a5-b3b5-42b1-9c73-5f501af19ad6 /boot                   xfs     defaults        0 0
+/dev/mapper/rhel-swap   swap                    swap    defaults        0 0
+[oracle@rhel1 ~]$ su - root
+Password: 
+Last login: Thu Nov 29 14:44:14 EAT 2018 on :0
+[root@rhel1 ~]# /tmp/CVU_11.2.0.4.0_oracle/runfixup.sh
+Response file being used is :/tmp/CVU_11.2.0.4.0_oracle/fixup.response
+Enable file being used is :/tmp/CVU_11.2.0.4.0_oracle/fixup.enable
+Log file location: /tmp/CVU_11.2.0.4.0_oracle/orarun.log
+Setting Kernel Parameters...
+/tmp/CVU_11.2.0.4.0_oracle/orarun.sh: line 246: [: 18446744073692774399: integer expression expected
+The value for shmmax in response file is not greater than value of shmmax for current session. Hence not changing it.
+The value for shmmni in response file is not greater than value of shmmni for current session. Hence not changing it.
+/tmp/CVU_11.2.0.4.0_oracle/orarun.sh: line 337: [: 18446744073692774399: integer expression expected
+The value for shmall in response file is not greater than value of shmall for current session. Hence not changing it.
+The value for semmsl in response file is not greater than value of semmsl for current session. Hence not changing it.
+The value for semmns in response file is not greater than value of semmns for current session. Hence not changing it.
+The value for semmni in response file is not greater than value of semmni for current session. Hence not changing it.
+kernel.sem = 250 32000 100 128
+fs.file-max = 6815744
+net.ipv4.ip_local_port_range = 9000 65500
+net.core.rmem_default = 262144
+net.core.wmem_default = 262144
+net.core.rmem_max = 4194304
+net.core.wmem_max = 1048576
+The value for aio-max-nr in response file is not greater than value of aio-max-nr for current session. Hence not changing it.
+uid=1001(oracle) gid=1002(oinstall) groups=1002(oinstall),1001(dba),1003(oper)
+
+------------------------------
+
+unblock ip in linux											-	iptables -D INPUT -s 172.17.80.133 -j DROP
+block ip in linux											-	iptables -A INPUT -s 172.17.80.133 -j DROP
+
+sudo firewall-cmd --zone=public --add-port=80/tcp --permanent	-- Adds Port 80 to IPTables permanently
+sudo firewall-cmd --reload									--	Reloads the firewall
+
+
+
+
+logname  (or) whoami  										- To Check Present Working User
+who 														- To Know Present Working Users
+hostname 													-To Know HostName(Machine Name) Of A Server
+ifconfig 													- To Find an IP 
+lscpu 														- To check CPU architecture 
+su [super user name] 										- Switch to Super User
+clear														- To Clear Screen
+exit 														-To exit From user Session
+man [cmd]													- Help Facility 
+date 														- To Display date 
+cal [month] [year] 											- To Display Calender
+pwd 														- To Know Present Working Directory
+ls [flags]													-To Display Directory Content
+mkdir [dir name] 											- To Create New Directory
+cd  [dir name] 												- To Change Directory
+mv [oldname] [newname) 										- To Rename Directory 
+rmdir [Directory Name] 										- To delete directory
+mv [source path] [target path] 								- To Move directory with sub directories 
+cp [source path] [target path] 								- To Copy directory with sub directories 
+cat > [file name] 											- To Create  File
+cp [source file] [target file] 								- To Copy A File
+mv [Old File] [New File] 									- To Rename A File
+rm [file name] 												- To Remove A File
+locate [file name] 											- To Search A file In Whole File System
+find [file name] [path] 									- To Search A file in Specified Path
+gzip [file name] 											- To Compress A File
+gunzip [file name] 											- To Uncompressed A File
+chmod [777] [file name] 									- To Change File Permissions 
+chown  [new owner name] [file name] 						- To Change Owner
+chgrp [new group name] [file name] 							- Change Group To A File
+useradd -u [uid] -g [group name] -d [user home dir] -s [shell]	- Creating New User
+groupadd -g [group id] [group name] 						- To Create New Group
+userdel [user name] 										- To Delete  User
+shutdown [time] 											- To Shutdown System At Particular Time
+shutdown -r now 											- Shutdown and reboot immediately
+shutdown -h halt 											- Shutdown immediately and halt
+df/df-k/df -g/df -h 										- To Check Free Disk Space
+du / du -s [dir name] 										- To Check Used Space 
+vi [file name] 												- To Open a File with VI Editor
+head -n [no of lines] [file name] 							- To Display First N line in A File
+tail -n [no of line] [file name] 							-  To Display Last N lines In A File
+
